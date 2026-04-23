@@ -147,6 +147,13 @@ function WorkLink({
   const posRef = useRef({ x: 0, y: 0 })
   const previewRef = useRef<HTMLDivElement>(null)
 
+  // Preload image on mount so it's in cache before hover
+  useEffect(() => {
+    if (!preview) return
+    const img = new window.Image()
+    img.src = preview
+  }, [preview])
+
   const updatePos = useCallback((clientX: number, clientY: number) => {
     posRef.current = { x: clientX, y: clientY }
     if (previewRef.current) {
@@ -171,11 +178,16 @@ function WorkLink({
       >
         {children}
       </a>
-      {preview && visible && (
+      {preview && (
         <div
           ref={previewRef}
           className="fixed pointer-events-none z-50"
-          style={{ left: posRef.current.x + 18, top: posRef.current.y - 80 }}
+          style={{
+            left: posRef.current.x + 18,
+            top: posRef.current.y - 80,
+            opacity: visible ? 1 : 0,
+            transition: "opacity 0.15s ease",
+          }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={preview} alt="" style={{ display: "block", width: previewWidth, borderRadius: 4 }} className="shadow-2xl" />
